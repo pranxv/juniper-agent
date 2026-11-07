@@ -1,0 +1,6 @@
+{"step": 0, "ms": 7220, "stop_reason": "end_turn", "input_tokens": 916, "output_tokens": 104, "tools": []}
+{"step": 0, "ms": 2816, "stop_reason": "end_turn", "input_tokens": 1034, "output_tokens": 75, "tools": []}
+{"step": 0, "ms": 2789, "stop_reason": "tool_use", "input_tokens": 1116, "output_tokens": 141, "tools": [{"name": "check_availability", "input": {"date": "2025-11-07", "party_size": 2}, "error": false}]}
+{"step": 1, "ms": 1324, "stop_reason": "end_turn", "input_tokens": 1335, "output_tokens": 36, "tools": []}
+{"step": 0, "ms": 1976, "stop_reason": "tool_use", "input_tokens": 1378, "output_tokens": 120, "tools": [{"name": "book", "input": {"name": "Kushal", "date": "2025-11-07", "time": "18:00", "party_size": 2}, "error": false}]}
+{"step": 1, "ms": 1399, "stop_reason": "end_turn", "input_tokens": 1558, "output_tokens": 49, "tools": []}
