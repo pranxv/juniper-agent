@@ -32,7 +32,10 @@ def _parse_date(date: str) -> datetime.date:
     try:
         return datetime.date.fromisoformat(date)
     except ValueError as err:
-        raise ValueError(f"'{date}' is not a date in YYYY-MM-DD format ({err})") from err
+        raise ValueError(
+            f"'{date}' is not a date in YYYY-MM-DD format ({err})"
+        ) from err
+
 
 def _require_bookable_date(date: str) -> datetime.date:
     parsed_date = _parse_date(date)

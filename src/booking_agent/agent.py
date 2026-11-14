@@ -1,21 +1,17 @@
-"""A hand-written agent loop: Claude decides, your code acts.
-
-Run:  uv run agent.py
-"""
-
+import datetime
 import json
 import pathlib
 import time
 
 import anthropic
 from anthropic.types.beta import BetaMessage
-
-from tools import TOOLS, run_tool
+from booking_agent.tools import RESTAURANT_TZ, TOOLS, run_tool
 
 MODEL = "claude-opus-5-5"
 MAX_STEPS = 8  # safety rail: never let one guest message loop forever
 
 SYSTEM = """You are the booking assistant for Juniper, a small restaurant.
+Today is {today:%A, %d %B %Y} ({today_iso}), restaurant time ({tz}).
 - Always check availability before offering or booking a time. Never invent times.
 - Before calling book, confirm the guest's name, party size, date and time.
 - After booking, tell the guest their booking_id.
@@ -24,11 +20,11 @@ SYSTEM = """You are the booking assistant for Juniper, a small restaurant.
 client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from the environment
 
 
-def call_claude(messages: list) -> BetaMessage:
+def call_claude(messages: list, system: str) -> BetaMessage:
     return client.beta.messages.create(
         model=MODEL,
         max_tokens=16000,
-        system=SYSTEM,
+        system=system,
         tools=TOOLS,
         messages=messages,
         output_config={
@@ -39,11 +35,20 @@ def call_claude(messages: list) -> BetaMessage:
     )
 
 
-def run_turn(messages: list, trace: list) -> str:
+def build_system(now: datetime.datetime) -> str:
+    today = now.date()
+    return SYSTEM.format(
+        today=today,
+        today_iso=today.isoformat(),
+        tz=now.tzname(),
+    )
+
+
+def run_turn(messages: list, trace: list, system: str) -> str:
     """Loop until Claude replies to the guest. Appends everything to `messages`."""
     for step in range(MAX_STEPS):
         start = time.perf_counter()
-        response = call_claude(messages)
+        response = call_claude(messages, system)
         span = {
             "step": step,
             "ms": round((time.perf_counter() - start) * 1000),
@@ -107,6 +112,7 @@ def main() -> None:
     messages: list = []
     trace: list = []
     print("Juniper booking agent. Type 'quit' to exit.")
+    system = build_system(datetime.datetime.now(RESTAURANT_TZ))
     while True:
         text = input("\nyou> ").strip()
         if text.lower() in {"quit", "exit"}:
@@ -115,7 +121,7 @@ def main() -> None:
             continue
         messages.append({"role": "user", "content": text})
         before = len(trace)
-        reply = run_turn(messages, trace)
+        reply = run_turn(messages, trace, system)
         print(f"agent> {reply}")
         print_trace(trace[before:])
 

@@ -1,2 +1,4 @@
-def main() -> None:
-    print("Hello from booking-agent!")
+from booking_agent.agent import main
+
+__all__ = ["main"]
+
